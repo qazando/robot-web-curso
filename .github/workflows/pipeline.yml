@@ -1,6 +1,6 @@
 name: Testes com Robot Framework e SeleniumLibrary
 
-on: [push]
+on: [pull_request]
 
 jobs:
   test:
@@ -21,3 +21,4 @@ jobs:
       with:
         name: robot-reports
         path: reports
+        retention-days: 3
