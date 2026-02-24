@@ -1,0 +1,24 @@
+stages:
+  - test
+
+robot_tests:
+  stage: test
+  image: ppodgorsek/robot-framework:latest
+  variables:
+    # (opcional) deixa o browser mais estável em CI
+    TZ: "America/Sao_Paulo"
+  script:
+    - mkdir -p reports
+    # roda tudo dentro de robot_tests/ e salva os relatórios
+    - robot --outputdir reports --xunit reports/xunit.xml robot_tests
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - reports/
+    reports:
+      junit: reports/xunit.xml
+  rules:
+    # roda em push e MR
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
