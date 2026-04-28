@@ -1,0 +1,44 @@
+trigger:
+  branches:
+    include:
+      - main
+      - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+container:
+  image: ppodgorsek/robot-framework:latest
+
+variables:
+  TZ: 'America/Sao_Paulo'
+
+stages:
+  - stage: Tests
+    displayName: 'Executar testes Robot Framework'
+    jobs:
+      - job: RobotTests
+        displayName: 'Rodar testes web com Robot'
+        steps:
+          - checkout: self
+
+          - script: |
+              mkdir -p reports
+              robot --outputdir reports --xunit reports/xunit.xml robot_tests
+            displayName: 'Executar testes Robot Framework'
+
+          - task: PublishTestResults@2
+            displayName: 'Publicar resultado dos testes'
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: 'reports/xunit.xml'
+              failTaskOnFailedTests: true
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publicar relatórios Robot'
+            condition: always()
+            inputs:
+              targetPath: 'reports'
+              artifact: 'robot-reports'
+              publishLocation: 'pipeline'
